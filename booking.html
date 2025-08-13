@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DNG Transport Booking</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="favicon-32x32.png">
+  <style>
+    /* ALL YOUR EXISTING STYLES REMAIN UNCHANGED */
+    body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; color: #333; }
+    .header { position: relative; background: linear-gradient(to right, #1e3c72, #2a5298); padding: 20px; color: white; text-align: center; }
+    .home-btn { position: absolute; top: 20px; left: 20px; color: white; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; z-index: 10; }
+    .logo { max-height: 80px; width: auto; object-fit: contain; }
+    .container { max-width: 680px; margin: 2rem auto; background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05); }
+    h2 { text-align: center; color: #1e3c72; margin-bottom: 1.5rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    /* In booking.html styles */
+input, select, .date-option, .bus-type-option {
+  min-height: 48px; /* Minimum touch target size */
+  font-size: 16px; /* Prevent iOS zoom */
+}
+@media (max-width: 480px) {
+  .confirm-actions {
+    flex-direction: column;
+  }
+  .confirm-actions .btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+.spinner {
+  display: inline-block;
+  width: 20px; height: 20px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+.form-group {
+  margin-bottom: 1.5rem; /* Was 1.2rem */
+}
+
+}
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    input, select { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; background-color: #f9fbff; }
+    .bus-type-container { display: flex; gap: 1rem; margin-top: 0.5rem; }
+    .bus-type-option { flex: 1; border: 2px solid #d1d5db; border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; background-color: #fff; transition: all 0.2s ease; }
+    .bus-type-option.selected { border-color: #1e3c72; background-color: #e3eaf7; font-weight: bold; }
+    .bus-type-option input { display: none; }
+    .prices {
+  overflow-x: auto; /* Add this */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling */
+}
+
+input, select {
+  font-size: 16px; /* Prevent iOS zoom */
+}
+
+    .price-display { font-weight: bold; font-size: 1rem; color: #1e3c72; margin-bottom: 1.2rem; }
+    .btn-pay { background: #1e3c72; color: white; font-size: 1rem; font-weight: 600; padding: 12px 24px; border: none; border-radius: 999px; cursor: pointer; width: 100%; }
+    .btn-pay:hover { background: #2a5298; }
+    footer { text-align: center; background: #0d1f3d; color: white; padding: 1.5rem; margin-top: 2rem; font-size: 0.95rem; }
+    footer span { display: block; margin-bottom: 4px; }
+    .date-options { display: flex; gap: 10px; margin-top: 8px; }
+    .date-option.disabled { opacity: 0.6; cursor: not-allowed; background-color: #f0f0f0; }
+    .date-option { flex: 1; padding: 10px; border: 2px solid #d1d5db; border-radius: 8px; text-align: center; cursor: pointer; background-color: #fff; transition: all 0.2s ease; }
+    .date-option.selected { border-color: #1e3c72; background-color: #e3eaf7; font-weight: bold; }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER AND FORM MARKUP REMAINS UNCHANGED -->
+  <header class="header">
+    <a href="homepage.html" class="home-btn">← Home</a>
+    <img src="DNG logo.jpg" alt="DNG Logo" class="logo" />
+    <h1>DNG TRANSPORT BROKERAGE</h1>
+    <p>Fast, reliable, and affordable transportation</p>
+  </header>
+
+  <main>
+    <div class="container">
+      <h2>Book Your Trip</h2>
+      <form id="bookingForm">
+        <div class="form-group">
+          <label for="fullName">Full Name *</label>
+          <input type="text" id="fullName" name="fullName" required />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number *</label>
+          <input type="tel" id="phone" name="phone" required />
+        </div>
+
+        <div class="form-group">
+          <label for="destination">Destination *</label>
+          <select id="destination" name="destination" required>
+            <option value="">-- Select Destination --</option>
+            <option value="Kumasi" data-price-sprinter="117" data-price-vip="152">Kumasi</option>
+            <option value="Tema" data-price="91">Tema</option>
+            <option value="Ashaiman" data-price="91">Ashaiman</option>
+            <option value="Kasoa" data-price="72">Kasoa</option>
+            <option value="Madina/Adenta" data-price="86">Madina/Adenta</option>
+            <option value="Kaneshie/Circle" data-price-sprinter="77" data-price-vip="117">Kaneshie/Circle</option>
+            <option value="Koforidua" data-price="152">Koforidua</option>
+            <option value="Akim Oda" data-price="86">Akim Oda</option>
+            <option value="Pokuase/Amasaman" data-price="81">Pokuase/Amasaman</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="pickupPoint">Pickup Point *</label>
+          <select id="pickupPoint" name="pickupPoint" required>
+            <option value="">-- Select Pickup Point --</option>
+            <option value="Old Site Shuttle Terminal">Old Site Shuttle Terminal</option>
+            <option value="New Site Shuttle Terminal">New Site Shuttle Terminal</option>
+            <option value="Science Shuttle Terminal">Science Shuttle Terminal</option>
+            <option value="SRC Hall Shuttle Terminal">SRC Hall Shuttle Terminal</option>
+          </select>
+        </div>
+        
+        <!-- Travel date field -->
+         <div class="form-group">
+          <label>Travel Date *</label>
+          <div class="date-options" id="dateOptions">
+            <div class="date-option selected" data-date="2025-08-16">
+              Saturday, 16th August
+            </div>
+            <div class="date-option" data-date="2025-08-17">
+              Sunday, 17th August
+            </div>
+          </div>
+          <input type="hidden" id="travelDate" name="travelDate" value="2025-08-16" required />
+        </div>
+
+        <div class="form-group">
+          <label>Bus Type *</label>
+          <div class="bus-type-container">
+            <label class="bus-type-option selected" id="sprinterOption">
+              <input type="radio" name="busType" value="sprinter" checked />
+              Sprinter Bus
+            </label>
+            <label class="bus-type-option" id="vipOption" style="display: none;">
+              <input type="radio" name="busType" value="vip" />
+              VIP Bus
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="payerName">Payer's Name (shown in MOMO confirmation message)</label>
+          <input type="text" id="payerName" name="payerName" placeholder="Enter Payer's Name" required />
+        </div>
+        
+        <!-- Emergency contact fields -->
+        <div class="form-group">
+          <label for="emergencyName">Emergency Contact Name</label>
+          <input type="text" id="emergencyName" name="emergencyName" placeholder="Optional" />
+        </div>
+        
+        <div class="form-group">
+          <label for="emergencyPhone">Emergency Contact Phone</label>
+          <input type="tel" id="emergencyPhone" name="emergencyPhone" placeholder="Optional" />
+        </div>
+
+        <div class="price-display" id="price">Price: GHS 0.00</div>
+
+        <button type="submit" class="btn-pay">Book Trip</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmOverlay" aria-modal="true" role="dialog">
+    <div class="confirm-card">
+      <div class="confirm-header">
+        <h3 style="margin:0; font-size:1.05rem;" id="bookingRefTitle">Booking Created • Reference</h3>
+      </div>
+      <div class="confirm-body" id="bookingDetails">
+        <!-- Content will be injected dynamically -->
+      </div>
+      <div class="confirm-actions">
+        <button class="btn btn-secondary" id="closeModalBtn">Close</button>
+        <a class="btn btn-whatsapp" id="whatsappLink" target="_blank" rel="noopener">Send payment screenshot on WhatsApp</a>
+        <button class="btn btn-primary" id="copyRefBtn">Copy reference number</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="contact">
+      <span>📍 University of Cape Coast</span>
+      <span>🚌 Transiting you back home</span>
+      <span>☎ Call/WhatsApp: 0598106751 / 0595223640 / 0246962314</span>
+    </div>
+    <p>© 2025 DNG TRANSPORT BROKERAGE. All rights reserved.</p>
+  </footer>
+
+ <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // ====== GOOGLE SCRIPT URL SET HERE ======
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjQ3W77GNraBsueuF5x13_W3ajzo0Ysbb__snBKb467h0ki9FjqLmeAGBD7Nj4woQ0wA/exec';
+    
+        // ====== FIXED VARIABLES ======
+    const MOMO_NUMBER_DISPLAY = '0598106751';
+    const MOMO_NAME = 'EMMANUEL ODURO WOOD';
+    const WHATSAPP_NUMBER_LINK = `https://wa.me/+233598106751`;
+
+    // Elements
+    const form = document.getElementById('bookingForm');
+    const destinationSelect = document.getElementById('destination');
+    const pickupSelect = document.getElementById('pickupPoint');
+    const priceEl = document.getElementById('price');
+    const sprinterCard = document.getElementById('sprinterOption');
+    const vipCard = document.getElementById('vipOption');
+    const dateOptions = document.querySelectorAll('.date-option');
+
+    const currency = new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: 'GHS',
+      minimumFractionDigits: 2
+    });
+
+    const destinationCodes = {
+      'Kumasi': 'KUM',
+      'Tema': 'TM',
+      'Ashaiman': 'ASH',
+      'Madina/Adenta': 'MAD',
+      'Kaneshie/Circle': 'KAN',
+      'Koforidua': 'KOF',
+      'Akim Oda': 'AOD',
+      'Pokuase/Amasaman': 'POK'
+    };
+
+    // Mobile detection and UI adjustments
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      document.querySelector('.container').classList.add('mobile-container');
+      document.querySelectorAll('.form-group input, .form-group select').forEach(el => {
+        el.classList.add('mobile-input');
+      });
+      document.querySelector('.btn-pay').classList.add('mobile-btn');
+    }
+
+    // Pre-select destination and date from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const destination = urlParams.get('destination');
+    const dateParam = urlParams.get('date');
+    
+    if (destination) {
+      document.getElementById('destination').value = destination;
+    }
+    
+    if (dateParam) {
+      document.getElementById('travelDate').value = dateParam;
+      document.querySelectorAll('.date-option').forEach(option => {
+        option.classList.remove('selected');
+        if (option.dataset.date === dateParam) {
+          option.classList.add('selected');
+        }
+      });
+    }
+    
+    // Ensure modal is hidden on page load
+    const modal = document.getElementById('confirmOverlay');
+    if (modal) modal.style.display = 'none';
+    
+    // Close modal function
+    function closeModal() {
+      if (modal) modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // Close modal button
+    const closeBtn = document.getElementById('closeModalBtn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeModal);
+    }
+
+    // Copy reference button
+    const copyRefBtn = document.getElementById('copyRefBtn');
+    if (copyRefBtn) {
+      copyRefBtn.addEventListener('click', () => {
+        const ref = document.getElementById('bookingRefTitle').textContent.split('•')[1]?.trim();
+        if (ref) {
+          navigator.clipboard.writeText(ref);
+          const originalText = copyRefBtn.textContent;
+          copyRefBtn.textContent = '✓ Copied!';
+          setTimeout(() => {
+            copyRefBtn.textContent = originalText;
+          }, 2000);
+        }
+      });
+    }
+
+   // ====== FORM SUBMISSION HANDLER ======
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.querySelector('.btn-pay');
+      const originalBtnText = submitBtn.textContent;
+      
+      // Show loading state
+      submitBtn.textContent = 'Processing...';
+      submitBtn.disabled = true;
+
+      // Collect form data
+      const fullName = (document.getElementById('fullName').value || '').trim();
+      const phone = (document.getElementById('phone').value || '').trim();
+      const payerName = (document.getElementById('payerName').value || '').trim();
+      const destination = destinationSelect.value;
+      const pickupPoint = pickupSelect.value;
+      const travelDate = document.getElementById('travelDate').value;
+      const emergencyName = (document.getElementById('emergencyName').value || '').trim();
+      const emergencyPhone = (document.getElementById('emergencyPhone').value || '').trim();
+      const busType = getCheckedBusType();
+      const price = updatePrice() || 0;
+
+
+      // Validation
+      let isValid = true;
+      if (!fullName || !phone || !payerName || !destination || !pickupPoint || !travelDate) {
+        isValid = false;
+        alert('Please complete all required fields.');
+      } else if (!validatePhoneGH(phone)) {
+        isValid = false;
+        alert('Enter a valid Ghana phone number (e.g., 059XXXXXXX or 23359XXXXXXX).');
+      } else if (price <= 0) {
+        isValid = false;
+        alert('Please select a valid destination to get the correct price.');
+      }
+
+      if (!isValid) {
+        submitBtn.textContent = originalBtnText;
+        submitBtn.disabled = false;
+        return;
+      }
+
+      // ====== SEND DATA TO GOOGLE SHEETS ======
+       try {
+        // Build form data object WITHOUT bookingReference
+        const formData = {
+          fullName,
+          phone,
+          destination,
+          pickupPoint,
+          travelDate,
+          busType,
+          price,
+          payerName,
+          emergencyName,
+          emergencyPhone
+        };
+
+        // Send to Google Apps Script
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.message || 'Failed to save booking');
+        }
+
+
+        // Create booking object for confirmation
+        const booking = {
+          fullName,
+          phone,
+          payerName,
+          destination,
+          pickupPoint,
+          travelDate,
+          emergencyName,
+          emergencyPhone,
+          busType,
+          price,
+          // FIXED: Use bookingId from response
+          bookingNumber: result.bookingId,
+          createdAt: new Date().toISOString()
+        };
+
+        showConfirmation(booking);
+
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+      } finally {
+        form.reset();
+        selectCard(sprinterCard);
+        updateBusTypeAvailability();
+        updatePrice();
+        submitBtn.textContent = originalBtnText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    // ====== SUPPORT FUNCTIONS ======
+    function getCheckedBusType() {
+      return document.querySelector('input[name="busType"]:checked')?.value || 'sprinter';
+    }
+
+    function selectCard(card) {
+      document.querySelectorAll('.bus-type-option').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      card.style.transform = 'scale(0.97)';
+      setTimeout(() => card.style.transform = '', 150);
+      const input = card.querySelector('input[name="busType"]');
+      if (input) input.checked = true;
+    }
+
+    function isVipAvailableFor(opt) {
+      return !!opt && opt.dataset && opt.dataset.priceVip !== undefined && opt.dataset.priceVip !== '';
+    }
+
+    function updateDateOptions() {
+      const destination = destinationSelect.value;
+      const isSpecialRoute = destination === 'Kumasi' || destination === 'Kaneshie/Circle';
+      dateOptions.forEach(option => {
+        if (option.dataset.date === '2025-08-17') {
+          if (isSpecialRoute) {
+            option.classList.remove('disabled');
+            option.title = '';
+          } else {
+            option.classList.add('disabled');
+            option.title = 'Only available for Kumasi and Kaneshie/Circle';
+          }
+        }
+      });
+      if (!isSpecialRoute && document.getElementById('travelDate').value === '2025-08-17') {
+        document.getElementById('travelDate').value = '2025-08-16';
+        dateOptions.forEach(option => {
+          option.classList.remove('selected');
+          if (option.dataset.date === '2025-08-16') {
+            option.classList.add('selected');
+            option.style.backgroundColor = '#e3eaf7';
+            setTimeout(() => option.style.backgroundColor = '', 1000);
+          }
+        });
+      }
+    }
+
+    function updateBusTypeAvailability() {
+      const opt = destinationSelect?.selectedOptions?.[0];
+      const hasVIP = isVipAvailableFor(opt);
+      const travelDate = document.getElementById('travelDate').value;
+      const isSpecialRoute = destinationSelect.value === 'Kumasi' || destinationSelect.value === 'Kaneshie/Circle';
+      const isSaturday = travelDate === '2025-08-16';
+      if (vipCard) {
+        if (hasVIP && isSpecialRoute) {
+          vipCard.style.display = isSaturday ? 'block' : 'none';
+          if (!isSaturday && vipCard.querySelector('input[name="busType"]').checked) {
+            selectCard(sprinterCard);
+            if (isMobile) {
+              const toast = document.createElement('div');
+              toast.textContent = 'VIP only available on Saturday';
+              toast.style.cssText = `position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 25px; z-index: 1000; font-size: 14px;`;
+              document.body.appendChild(toast);
+              setTimeout(() => toast.remove(), 3000);
+            }
+          }
+        } else {
+          vipCard.style.display = hasVIP ? 'block' : 'none';
+        }
+        const vipInput = vipCard.querySelector('input[name="busType"]');
+        if (vipInput) vipInput.disabled = !hasVIP || (isSpecialRoute && !isSaturday);
+      }
+    }
+
+    function updatePrice() {
+      const opt = destinationSelect?.selectedOptions?.[0];
+      if (!opt || !opt.value) {
+        priceEl.textContent = 'Price: GHS 0.00';
+        return;
+      }
+      const busType = getCheckedBusType();
+      let price = 0;
+      if (busType === 'vip' && opt.dataset.priceVip) {
+        price = Number(opt.dataset.priceVip);
+      } else if (busType === 'sprinter' && opt.dataset.priceSprinter) {
+        price = Number(opt.dataset.priceSprinter);
+      } else if (opt.dataset.price) {
+        price = Number(opt.dataset.price);
+      }
+      if (!Number.isFinite(price)) price = 0;
+      priceEl.textContent = `Price: ${currency.format(price)}`;
+      priceEl.style.fontSize = '1.2rem';
+      priceEl.style.color = '#1e3c72';
+      priceEl.style.transition = 'all 0.3s ease';
+      setTimeout(() => {
+        priceEl.style.fontSize = '';
+      }, 300);
+      return price;
+    }
+
+    function validatePhoneGH(phoneRaw) {
+      const p = (phoneRaw || '').replace(/\s+/g, '');
+      return /^0\d{9}$/.test(p) || /^233\d{9}$/.test(p);
+    }
+
+    function buildWaMessage(b) {
+      const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const formattedDate = new Date(b.travelDate).toLocaleDateString('en-GH', dateOptions);
+      const lines = [
+        `Hello, I just made a booking and will send my MoMo screenshot.`,
+        `Name: ${b.fullName}`,
+        `Phone: ${b.phone}`,
+        `Destination: ${b.destination}`,
+        `Pickup: ${b.pickupPoint}`,
+        `Travel Date: ${formattedDate}`,
+        `Bus: ${b.busType === 'vip' ? 'VIP' : 'Sprinter'}`,
+        `Amount: ${currency.format(b.price)}`,
+        `Reference: ${b.bookingNumber}`,
+        ``,
+        `I’ll attach the payment screenshot here.`
+      ];
+      return encodeURIComponent(lines.join('\n'));
+    }
+
+    function showConfirmation(booking) {
+      const overlay = document.getElementById('confirmOverlay');
+      const title = document.getElementById('bookingRefTitle');
+      const details = document.getElementById('bookingDetails');
+      const whatsappLink = document.getElementById('whatsappLink');
+      if (!overlay || !title || !details || !whatsappLink) return;
+      const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const formattedDate = new Date(booking.travelDate).toLocaleDateString('en-GH', dateOptions);
+      title.textContent = `Booking Created • ${booking.bookingNumber}`;
+      details.innerHTML = `
+        <p>Hi ${booking.fullName}, your booking has been recorded.</p>
+        <ul>
+          <li><strong>Destination:</strong> ${booking.destination}</li>
+          <li><strong>Pickup Point:</strong> ${booking.pickupPoint}</li>
+          <li><strong>Travel Date:</strong> ${formattedDate}</li>
+          <li><strong>Bus Type:</strong> ${booking.busType === 'vip' ? 'VIP Bus' : 'Sprinter Bus'}</li>
+          <li><strong>Amount:</strong> ${currency.format(booking.price)}</li>
+          <li><strong>Reference:</strong> <code>${booking.bookingNumber}</code></li>
+          <li><strong>Payer:</strong> ${booking.payerName}</li>
+          ${booking.emergencyName ? `<li><strong>Emergency Contact:</strong> ${booking.emergencyName} (${booking.emergencyPhone || 'No phone'})</li>` : ''}
+        </ul>
+        <div style="background:#f9fbff; border:1px solid #e5e7eb; border-radius:10px; padding:12px; margin-top:12px;">
+          <p><strong>Mobile Money Payment (Manual)</strong></p>
+          <ol>
+            <li>Send ${currency.format(booking.price)} to <strong>${MOMO_NUMBER_DISPLAY}</strong> (${MOMO_NAME}).</li>
+            <li>Please use: <strong>${booking.payerName}</strong> as the payer name.</li>
+            <li>Keep the MoMo SMS as receipt. Then send the screenshot of MoMo confirmation message on WhatsApp.</li>
+          </ol>
+          <p style="color:#6b7280; font-size:0.9rem;">Support: 0598106751 • 0595223640 • 0246962314</p>
+        </div>
+      `;
+      whatsappLink.href = `${WHATSAPP_NUMBER_LINK}?text=${buildWaMessage(booking)}`;
+      if (isMobile) {
+        overlay.style.alignItems = 'flex-end';
+        overlay.style.justifyContent = 'flex-end';
+        document.querySelector('.confirm-card').style.maxWidth = '100%';
+        document.querySelector('.confirm-card').style.borderRadius = '20px 20px 0 0';
+      }
+      overlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    document.querySelectorAll('.date-option').forEach(option => {
+      option.addEventListener('click', () => {
+        if (option.classList.contains('disabled')) {
+          option.style.transform = 'translateX(5px)';
+          setTimeout(() => option.style.transform = '', 300);
+          return;
+        }
+        document.querySelectorAll('.date-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        document.getElementById('travelDate').value = option.dataset.date;
+        option.style.backgroundColor = '#d4e0f7';
+        setTimeout(() => option.style.backgroundColor = '', 300);
+        updateBusTypeAvailability();
+      });
+    });
+
+    document.querySelectorAll('.bus-type-option').forEach(card => {
+      card.setAttribute('tabindex', '0');
+      card.style.cursor = 'pointer';
+      card.style.transition = 'all 0.2s ease';
+      const activate = () => { 
+        selectCard(card); 
+        updatePrice(); 
+      };
+      card.addEventListener('click', activate);
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { 
+          e.preventDefault(); 
+          activate(); 
+        }
+      });
+      card.addEventListener('touchstart', () => {
+        card.style.transform = 'scale(0.98)';
+      });
+      card.addEventListener('touchend', () => {
+        card.style.transform = '';
+      });
+    });
+
+    destinationSelect.addEventListener('change', () => {
+      if (destinationSelect.value === 'Kumasi' || destinationSelect.value === 'Kaneshie/Circle') {
+        document.getElementById('travelDate').value = '2025-08-16';
+        document.querySelectorAll('.date-option').forEach(option => {
+          option.classList.remove('selected');
+          if (option.dataset.date === '2025-08-16') {
+            option.classList.add('selected');
+          }
+        });
+      }
+      updateDateOptions();
+      updateBusTypeAvailability();
+      updatePrice();
+    });
+
+    document.querySelectorAll('input, select').forEach(input => {
+      input.addEventListener('focus', () => {
+        input.style.borderColor = '#1e3c72';
+        input.style.boxShadow = '0 0 0 2px rgba(30, 60, 114, 0.2)';
+      });
+      input.addEventListener('blur', () => {
+        input.style.borderColor = '#d1d5db';
+        input.style.boxShadow = '';
+      });
+    });
+
+    updateDateOptions();
+    const initiallyChecked = document.querySelector('.bus-type-option input[name="busType"]:checked');
+    if (initiallyChecked) selectCard(initiallyChecked.closest('.bus-type-option'));
+    updateBusTypeAvailability();
+    updatePrice();
+  });
+</script>
+</body>
+</html>
