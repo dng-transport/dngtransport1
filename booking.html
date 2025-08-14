@@ -166,7 +166,10 @@ input, select {
 
         <div class="price-display" id="price">Price: GHS 0.00</div>
 
-        <button type="submit" class="btn-pay">Book Trip</button>
+        <button type="submit" class="btn-pay" id="submitBtn">
+        <span id="btnText">Book Trip</span>
+        <span id="btnSpinner" style="display:none">🔄 Processing...</span>
+        </button>
       </form>
     </div>
   </main>
@@ -301,8 +304,10 @@ input, select {
       const originalBtnText = submitBtn.textContent;
       
       // Show loading state
-      submitBtn.textContent = 'Processing...';
+      // In form submit handler:
       submitBtn.disabled = true;
+      document.getElementById('btnText').style.display = 'none';
+      document.getElementById('btnSpinner').style.display = 'inline';
 
       // Collect form data
       const fullName = (document.getElementById('fullName').value || '').trim();
