@@ -379,7 +379,7 @@ input, select {
           busType,
           price,
           // FIXED: Use bookingId from response
-          bookingNumber: result.bookingId,
+          bookingNumber: result.bookingReference,
           createdAt: new Date().toISOString()
         };
 
