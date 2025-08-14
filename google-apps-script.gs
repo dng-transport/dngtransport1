@@ -320,8 +320,7 @@ function doPost(e) {
         message: 'Please try again or contact support.',
         timestamp: new Date().toISOString()
       }))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeader('Access-Control-Allow-Origin', '*');
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
