@@ -18,6 +18,7 @@ const HEADERS = [
   'Destination',
   'Travel Date',
   'Bus Type',
+  'Price', 
   "Payer's Name",
   'Emergency Contact',
   'Emergency Phone',
