@@ -280,8 +280,11 @@ function doPost(e) {
 
     const result = saveBookingToSheet(data);
 
-    if (!result.success) throw new Error(result.message || 'Unknown error');
+    if (!result.success) {
+      throw new Error(result.message || 'Unknown error saving booking');
+    }
 
+    // Successful response
     return ContentService
       .createTextOutput(JSON.stringify({
         success: true,
@@ -289,20 +292,23 @@ function doPost(e) {
         bookingReference: data.bookingReference,
         timestamp: new Date().toISOString()
       }))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeader('Access-Control-Allow-Origin', '*'); // CORS header
+
   } catch (error) {
+    // Error response
     Logger.log('❌ Error processing booking: ' + error.message);
     return ContentService
       .createTextOutput(JSON.stringify({
         success: false,
-        error: String(error),
+        error: error.toString(),
         message: 'Please try again or contact support.',
         timestamp: new Date().toISOString()
       }))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeader('Access-Control-Allow-Origin', '*'); // CORS header
   }
 }
-
 function doGet(e) {
   return ContentService
     .createTextOutput(JSON.stringify({
