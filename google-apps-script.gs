@@ -271,20 +271,35 @@ function camelKey(text) {
 
 // ======================= Web Endpoints =======================
 function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents || '{}');
+  // 1. Validate request exists
+  if (!e || !e.postData || !e.postData.contents) {
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: false,
+        error: "Invalid request format",
+        message: "Missing POST data. Please submit a valid booking request."
+      }))
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeader('Access-Control-Allow-Origin', '*');
+  }
 
+  try {
+    // 2. Parse incoming data
+    const data = JSON.parse(e.postData.contents);
+    
+    // 3. Generate booking reference if needed
     if (!data.bookingReference) {
       data.bookingReference = generateBookingReference();
     }
 
+    // 4. Save to sheet
     const result = saveBookingToSheet(data);
 
     if (!result.success) {
       throw new Error(result.message || 'Unknown error saving booking');
     }
 
-    // Successful response
+    // 5. Return success response
     return ContentService
       .createTextOutput(JSON.stringify({
         success: true,
@@ -293,22 +308,23 @@ function doPost(e) {
         timestamp: new Date().toISOString()
       }))
       .setMimeType(ContentService.MimeType.JSON)
-      .setHeader('Access-Control-Allow-Origin', '*'); // CORS header
+      .setHeader('Access-Control-Allow-Origin', '*');
 
   } catch (error) {
-    // Error response
+    // 6. Handle errors
     Logger.log('❌ Error processing booking: ' + error.message);
     return ContentService
       .createTextOutput(JSON.stringify({
         success: false,
-        error: error.toString(),
+        error: String(error),
         message: 'Please try again or contact support.',
         timestamp: new Date().toISOString()
       }))
       .setMimeType(ContentService.MimeType.JSON)
-      .setHeader('Access-Control-Allow-Origin', '*'); // CORS header
+      .setHeader('Access-Control-Allow-Origin', '*');
   }
 }
+
 function doGet(e) {
   return ContentService
     .createTextOutput(JSON.stringify({
